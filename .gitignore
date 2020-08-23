@@ -1,4 +1,5 @@
 *.orig
+stale_outputs_checked
 
 # Build output
 target/

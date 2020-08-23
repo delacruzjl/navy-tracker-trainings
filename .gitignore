@@ -1,3 +1,5 @@
+*.orig
+
 # Build output
 target/
 *.class

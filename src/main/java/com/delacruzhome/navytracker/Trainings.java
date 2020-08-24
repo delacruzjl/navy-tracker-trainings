@@ -2,31 +2,60 @@ package com.delacruzhome.navytracker;
 
 import java.util.*;
 import com.microsoft.azure.functions.annotation.*;
+import com.delacruzhome.navytracker.models.Training;
+import com.delacruzhome.navytracker.repositories.IRepository;
+import com.delacruzhome.navytracker.repositories.TrainingRepositoryImpl;
+import com.google.gson.Gson;
 import com.microsoft.azure.functions.*;
+import java.util.logging.Logger;
 
 /**
  * Azure Functions with HTTP Trigger.
  */
 public class Trainings {
-    /**
-     * This function listens at endpoint "/api/HttpTrigger-Java". Two ways to invoke it using "curl" command in bash:
-     * 1. curl -d "HTTP Body" {your host}/api/HttpTrigger-Java
-     * 2. curl {your host}/api/HttpTrigger-Java?name=HTTP%20Query
-     */
-    @FunctionName("trainings")
-    public HttpResponseMessage run(
-            @HttpTrigger(name = "req", methods = {HttpMethod.GET, HttpMethod.POST}, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
-            final ExecutionContext context) {
-        context.getLogger().info("Java HTTP trigger processed a request.");
+    private IRepository<Training> trainingRepository;
 
-        // Parse query parameter
-        String query = request.getQueryParameters().get("name");
-        String name = request.getBody().orElse(query);
+    public Trainings() {
+        this(TrainingRepositoryImpl.initialize());
+    }
 
-        if (name == null) {
-            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Please pass a name on the query string or in the request body").build();
-        } else {
-            return request.createResponseBuilder(HttpStatus.OK).body("Hello, " + name).build();
+    public Trainings(IRepository<Training> trainingRepository) {
+        this.trainingRepository = trainingRepository;
+    }
+
+    @FunctionName("listtrainings")
+    public HttpResponseMessage getAll(
+        @HttpTrigger(
+            name = "req", 
+            methods = { HttpMethod.GET }, 
+            authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
+        final ExecutionContext context) {
+        
+            Logger log = context.getLogger();
+        log.info("Java HTTP trigger processed a request.");
+
+        List<Training> trainingList = trainingRepository.getAll();
+        return request.createResponseBuilder(HttpStatus.OK).body(trainingList).build();
+    }
+
+    @FunctionName("createtrainings")
+    public HttpResponseMessage add(
+        @HttpTrigger(
+            name = "req",
+            methods = { HttpMethod.POST },
+            authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
+        final ExecutionContext context
+    ) {
+        Gson gson = new Gson();
+        Training training = gson.fromJson(request.getBody().orElse(""), Training.class);
+        if (training == null){
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+            .body("There was nothing to save or the provided data is not a valid training object")
+            .build();
         }
+        
+        training = trainingRepository.add(training);
+        return request.createResponseBuilder(HttpStatus.CREATED)
+        .body(training).build();
     }
 }

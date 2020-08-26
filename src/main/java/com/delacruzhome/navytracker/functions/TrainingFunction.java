@@ -78,12 +78,19 @@ public class TrainingFunction extends BaseFunction {
         Logger log = context.getLogger();
         log.info("Java HTTP trigger processed a request." + id);
 
-        Training training = request.getBody().orElse(null);
-        training.setId(id);
-        trainingRepository.update(training);
-        return request.createResponseBuilder(HttpStatus.OK)
-                .body(training)
-                .build();
+        try {
+            Training training = request.getBody().orElse(null);
+            training.setId(id);
+            trainingRepository.update(training);
+            return request.createResponseBuilder(HttpStatus.OK)
+                    .body(training)
+                    .build();
+        }
+        catch (IllegalArgumentException e) {
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage())
+                    .build();
+        }
     }
 
     @FunctionName("deleteTrainings")

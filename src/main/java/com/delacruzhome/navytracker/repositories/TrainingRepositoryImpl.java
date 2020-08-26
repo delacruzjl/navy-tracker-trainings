@@ -1,5 +1,6 @@
 package com.delacruzhome.navytracker.repositories;
 
+import java.io.InvalidObjectException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import com.mongodb.client.*;
 import static com.mongodb.client.model.Filters.*;
 
 import org.bson.BsonValue;
+import org.bson.types.ObjectId;
 
 public class TrainingRepositoryImpl extends RepositoryBase<Training> {
 
@@ -46,7 +48,7 @@ public class TrainingRepositoryImpl extends RepositoryBase<Training> {
     }
 
     @Override
-    public Training findById(final String id) {
+    public Training findById(final ObjectId id) {
         return collection.find(eq("_id", id))
         .map(doc -> trainingFactory.create(doc)).first();
     }
@@ -54,22 +56,30 @@ public class TrainingRepositoryImpl extends RepositoryBase<Training> {
     @Override
     public Training add(Training training) {
         BsonValue id = collection
-        .insertOne(trainingFactory.creaDocument(training)).getInsertedId();
-        training.setId(id.asObjectId());
+        .insertOne(trainingFactory.createDocument(training)).getInsertedId();
+
+        training.setId(id.asObjectId().getValue().toString());
         return training;
     }
 
     @Override
-    public Training update(final Training training) {
-        collection.replaceOne(eq("_id", training.getId()), 
-            trainingFactory.creaDocument(training));
+    public Training update(final Training training) throws IllegalArgumentException {
+        long count = collection.replaceOne(eq("_id", new ObjectId(training.getId())),
+            trainingFactory.createDocument(training)).getModifiedCount();
+
+        if (count < 1) {
+            throw new IllegalArgumentException("Could not modify, the id provided is invalid");
+        }
 
         return training;
     }
 
     @Override
-    public void delete(final String id) {
-        collection.deleteOne(eq("_id", id));
+    public void delete(final ObjectId id) throws IllegalArgumentException {
+        long count = collection.deleteOne(eq("_id", id)).getDeletedCount();
+        if (count < 1){
+            throw new IllegalArgumentException("Could not delete, the id provided is invalid");
+        }
     }
 
 }

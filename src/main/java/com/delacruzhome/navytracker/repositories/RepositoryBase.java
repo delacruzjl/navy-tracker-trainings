@@ -6,6 +6,7 @@ import com.delacruzhome.navytracker.factories.IFactory;
 import com.mongodb.client.*;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 public abstract class RepositoryBase<T> implements IRepository<T> {
     protected MongoClient mongoClient;
@@ -30,7 +31,7 @@ public abstract class RepositoryBase<T> implements IRepository<T> {
     public abstract List<T> getAll();
 
     @Override
-    public abstract T findById(String id);
+    public abstract T findById(ObjectId id);
 
     @Override
     public abstract T add(T training);
@@ -39,6 +40,6 @@ public abstract class RepositoryBase<T> implements IRepository<T> {
     public abstract T update(T training);
 
     @Override
-    public abstract void delete(String id);
+    public abstract void delete(ObjectId id);
     
 }

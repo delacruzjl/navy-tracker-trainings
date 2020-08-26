@@ -4,5 +4,5 @@ import org.bson.Document;
 
 public interface IFactory<T> {
     T create(Document doc);
-    Document creaDocument(T obj);
+    Document createDocument(T obj);
 }

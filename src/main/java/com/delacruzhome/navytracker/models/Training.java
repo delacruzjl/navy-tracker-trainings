@@ -3,23 +3,33 @@ package com.delacruzhome.navytracker.models;
 import java.util.Date;
 
 import org.bson.BsonObjectId;
+import org.bson.codecs.pojo.annotations.BsonId;
+import org.bson.types.ObjectId;
 
 public class Training {
-    private BsonObjectId id;
+    private String id;
     private String category;
     private String title;
     private Date due;
     private Boolean recurrent;
 
+    public Training(String id, String category, String title, Date due, Boolean recurrent) {
+        this.id = id;
+        this.category = category;
+        this.title = title;
+        this.due = due;
+        this.recurrent = recurrent;
+    }
+
     public String getCategory() {
         return category;
     }
 
-    public BsonObjectId getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(BsonObjectId id) {
+    public void setId(String id) {
         this.id = id;
     }
 

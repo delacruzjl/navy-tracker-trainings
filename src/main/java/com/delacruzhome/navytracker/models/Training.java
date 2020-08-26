@@ -2,9 +2,6 @@ package com.delacruzhome.navytracker.models;
 
 import java.util.Date;
 
-import org.bson.BsonObjectId;
-import org.bson.codecs.pojo.annotations.BsonId;
-import org.bson.types.ObjectId;
 
 public class Training {
     private String id;

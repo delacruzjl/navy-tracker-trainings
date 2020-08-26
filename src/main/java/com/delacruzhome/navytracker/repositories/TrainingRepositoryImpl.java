@@ -1,6 +1,5 @@
 package com.delacruzhome.navytracker.repositories;
 
-import java.io.InvalidObjectException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,12 +15,14 @@ import org.bson.BsonValue;
 import org.bson.types.ObjectId;
 
 public class TrainingRepositoryImpl extends RepositoryBase<Training> {
+    private static TrainingRepositoryImpl trainingRepository;
+    private static boolean initialized = false;
 
-    public TrainingRepositoryImpl(MongoClient client, IFactory<Training> trainingFactory) {
+    private TrainingRepositoryImpl(MongoClient client, IFactory<Training> trainingFactory) {
         super(client, trainingFactory, "trainings");
     }
 
-    public static TrainingRepositoryImpl initialize() {
+    private static void init() {
         String connString = System.getenv("MongoURI");
         MongoClient client = MongoClients.create(
             MongoClientSettings.builder()
@@ -30,7 +31,14 @@ public class TrainingRepositoryImpl extends RepositoryBase<Training> {
             .build()
         );
         IFactory<Training> trainingFactory = new TrainingFactoryImpl();
-        return new TrainingRepositoryImpl(client, trainingFactory);
+        trainingRepository = new TrainingRepositoryImpl(client, trainingFactory);
+    }
+
+    public static synchronized TrainingRepositoryImpl getInstance() {
+        if (initialized) return trainingRepository;
+        init();
+        initialized = true;
+        return trainingRepository;
     }
 
     @Override

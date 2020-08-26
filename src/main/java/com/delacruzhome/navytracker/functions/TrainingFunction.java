@@ -2,12 +2,9 @@ package com.delacruzhome.navytracker.functions;
 
 import java.util.*;
 
-import com.delacruzhome.navytracker.factories.TrainingFactoryImpl;
 import com.microsoft.azure.functions.annotation.*;
 import com.delacruzhome.navytracker.models.Training;
-import com.delacruzhome.navytracker.repositories.IRepository;
 import com.delacruzhome.navytracker.repositories.TrainingRepositoryImpl;
-import com.google.gson.Gson;
 import com.microsoft.azure.functions.*;
 import org.bson.types.ObjectId;
 
@@ -18,7 +15,7 @@ import java.util.logging.Logger;
  */
 public class TrainingFunction extends BaseFunction {
     public TrainingFunction() {
-        super(TrainingRepositoryImpl.initialize());
+        super(TrainingRepositoryImpl.getInstance());
     }
 
     @FunctionName("listTrainings")
@@ -28,7 +25,7 @@ public class TrainingFunction extends BaseFunction {
             methods = { HttpMethod.GET }, 
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "trainings"
-        ) HttpRequestMessage request,
+        ) HttpRequestMessage<Optional<String>> request,
         final ExecutionContext context) {
         
         Logger log = context.getLogger();

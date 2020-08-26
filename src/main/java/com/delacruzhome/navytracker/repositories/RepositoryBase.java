@@ -13,7 +13,7 @@ public abstract class RepositoryBase<T> implements IRepository<T> {
     protected MongoCollection<Document> collection;
     protected final IFactory<T> trainingFactory;
     private String collectionName;
-    
+
     public RepositoryBase(MongoClient client, final IFactory<T> trainingFactory, String collectionName) {
         mongoClient = client;
         this.trainingFactory = trainingFactory;
